@@ -10,7 +10,8 @@ import {
 const client = new DynamoDBClient({
   credentials: {
     accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_KEY
+    secretAccessKey: process.env.SECRET_KEY,
+    sessionToken: process.env.SESSION_TOKEN
   },
   region: process.env.REGION
 });
@@ -31,16 +32,18 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    const { Item } = await client.send(
-      new GetItemCommand({
-        TableName: process.env.TABLE_NAME,
-        Key: {
-          id: { S: req.query.id }
-        }
-      })
-    );
+    //console.log(client.config.credentials())
+    // const { Item } = await client.send(
+    //   new GetItemCommand({
+    //     TableName: process.env.TABLE_NAME,
+    //     Key: {
+    //       Hid: { S: req.query.id }
+    //     }
+    //   })
+    // );
+    // console.log(Item);
 
-    return res.status(200).json(Item);
+    return res.status(200).json({});
   }
 
   if (req.method === 'POST') {
