@@ -2,7 +2,8 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMap, useMapEvents } from 'react-leaflet/hooks'
 import { Icon } from 'leaflet';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import L from 'leaflet'
 
 const myIcon = new Icon({
  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Simple_icon_location.svg',
@@ -10,30 +11,28 @@ const myIcon = new Icon({
 })
 
 const Map = () => {
-
-  const [position, setPosition] = useState([]);
+  const zoom = 26;
+  const [position, setPosition] = useState(null);
   const [done, setDone] = useState(false);
 
-
-  function LocationMarker() {
+  const LocationMarker = () => {
     const map = useMap();
-    map.locate();
-
-    useMapEvents({
-      locationChanged: (e) => {
-        console.log(e);
-        setDone(true);
-      },
-      locationfound: (e) => {
-        setPosition(e.latlng);
-        setDone(true);
-      },
-      locationerror: (e) => {
-        console.error(e);
-        console.log("ffffff");
-        setDone(true);
-      },
-    })
+    if(!done) {
+      map.locate();
+      useMapEvents({
+        locationfound: (e) => {
+          setDone(true);
+          const lat = e.latlng.lat;
+          const lng =  e.latlng.lng; 
+          setPosition([lat, lng]);
+          map.setView(new L.LatLng(lat, lng), zoom);
+        },
+        locationerror: (e) => {
+          console.error(e);
+          setDone(true);
+        },
+      });
+    };
   
     return position === null ? null : (
       <Marker position={position} icon={myIcon}>
@@ -43,7 +42,7 @@ const Map = () => {
   }
 
   return (
-    <MapContainer zoom={13} scrollWheelZoom={false} style={{height: 400, width: "100%"}}>
+    <MapContainer center={position} zoom={zoom} scrollWheelZoom={false} style={{height: 500, width: "100%"}}>
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
