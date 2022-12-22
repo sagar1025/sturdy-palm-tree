@@ -15,6 +15,10 @@ const Map = () => {
   const [position, setPosition] = useState(null);
   const [done, setDone] = useState(false);
 
+  const setAsArrived = (e) => {
+    console.log('clicked');
+  }
+
   const LocationMarker = () => {
     const map = useMap();
     if(!done) {
@@ -36,7 +40,11 @@ const Map = () => {
   
     return position === null ? null : (
       <Marker position={position} icon={myIcon}>
-        <Popup>You are here</Popup>
+        <Popup>
+          <button onClick={(e) =>setAsArrived(e)} className="btn btn-primary">
+            It's here
+          </button>
+        </Popup>
       </Marker>
     );
   }
