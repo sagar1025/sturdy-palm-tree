@@ -20,11 +20,11 @@ const Map = () => {
   const [vote, setVote] = useState(false);
   const [hid, setHid] = useState('');
   const [voteCount, setVoteCount] = useState(0);
+  const [otherLocations, setOtherLocations] = useState([]);
 
   const updateVote = (data) => {
       fetch("/api/item", {
         method: 'PUT',
-        mode: 'cors',
         cache: 'no-cache',
         headers: {
           'Content-Type': 'application/json'
@@ -48,7 +48,6 @@ const Map = () => {
       if(data.Item && data.Item !== undefined) {
         setVoteCount(data.Item.votes.S);
       }
-      
     })
     .catch(error => console.error('Error', error))
   };
@@ -69,6 +68,8 @@ const Map = () => {
       useMapEvents({
         locationfound: (e) => {
           setDone(true);
+          //e.latlng.lat = '28.194546281717418';
+          //e.latlng.lng = '-82.34283609336777';
           const lat = e.latlng.lat;
           const lng =  e.latlng.lng; 
           setPosition([lat, lng]);
@@ -90,7 +91,7 @@ const Map = () => {
           {
             !vote ?
               <button onClick={(e) =>setAsArrived(e)} className="btn btn-primary">
-                It's here + {voteCount}
+                It's here
               </button>
               :
               <p>
@@ -100,7 +101,25 @@ const Map = () => {
         </Popup>
       </Marker>
     );
-  }
+  };
+
+  const getLocations = () => {
+    fetch(`/api/item`)
+    .then(res => res.json())
+    .then((data) => {
+      if (data) {
+        data.forEach(element => {
+          const latlang = {lat: element.lat.S, lang: element.lang.S, votes: element.votes.S};
+          setOtherLocations(prev => [...prev, latlang]);
+        });
+      }
+    })
+    .catch(error => console.error('Error', error))
+  };
+
+  useEffect(() => {
+    getLocations();
+  },[]);
 
   return (
     <MapContainer center={position} zoom={zoom} scrollWheelZoom={false} style={{height: 500, width: "100%"}}>
@@ -109,6 +128,19 @@ const Map = () => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <LocationMarker />
+      {
+        otherLocations.map((marker) =>
+          <Marker position={[marker.lat, marker.lang]} icon={myIcon} key={marker.lat + marker.lang}>
+          <Popup>
+            {
+              <p>
+                {marker.votes}
+              </p>
+            }
+            </Popup>
+          </Marker>
+        )
+      }
     </MapContainer>
   )
 }

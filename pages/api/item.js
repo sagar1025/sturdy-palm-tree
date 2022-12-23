@@ -1,10 +1,10 @@
-import * as uuid from 'uuid';
 import {
   DynamoDBClient,
   PutItemCommand,
   GetItemCommand,
   UpdateItemCommand,
-  DeleteItemCommand
+  ScanCommand
+  //DeleteItemCommand
 } from '@aws-sdk/client-dynamodb';
 
 const client = new DynamoDBClient({
@@ -37,15 +37,29 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    const Item = await client.send(
-      new GetItemCommand({
-        TableName: process.env.TABLE_NAME,
-        Key: {
-          Hid: { S: req.query.id }
-        }
-      })
-    );
-    return res.status(200).json(Item);
+    if(req.query.id && req.query.id !== undefined) {
+      const Item = await client.send(
+        new GetItemCommand({
+          TableName: process.env.TABLE_NAME,
+          Key: {
+            Hid: { S: req.query.id }
+          }
+        })
+      );
+      return res.status(200).json(Item);
+    }
+    else {
+      const Item = await client.send(
+        new ScanCommand({
+          TableName: process.env.TABLE_NAME
+        })
+      );
+
+      if(Item && Item.Count > 0) {
+        return res.status(200).json(Item.Items);
+      }
+      return res.status(200).json(null);
+    }
   }
 
   if (req.method === 'POST') {
