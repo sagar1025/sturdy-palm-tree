@@ -18,32 +18,34 @@ const client = new DynamoDBClient({
 
 export default async function handler(req, res) {
   if (req.method === 'PUT') {
-    const { Item } = await client.send(
+    const Item = await client.send(
       new PutItemCommand({
         TableName: process.env.TABLE_NAME,
         Item: {
-          id: { S: uuid.v4() },
-          content: { S: req.body.content }
+          Hid: { S: req.body.Hid + '' },
+          lat: { S: req.body.lat + ''},
+          lang: {S: req.body.lng + ''},
+          votes: {S: req.body.votes + '' }
         }
       })
     );
 
-    return res.status(201).json(Item);
+    if(Item.$metadata.httpStatusCode === 200 || Item.$metadata.httpStatusCode === 201) {
+      return res.status(201).json({"success": true});
+    }
+    return res.status(Item.$metadata.httpStatusCode).json({"success": false});
   }
 
   if (req.method === 'GET') {
-    //console.log(client.config.credentials())
-    // const { Item } = await client.send(
-    //   new GetItemCommand({
-    //     TableName: process.env.TABLE_NAME,
-    //     Key: {
-    //       Hid: { S: req.query.id }
-    //     }
-    //   })
-    // );
-    // console.log(Item);
-
-    return res.status(200).json({});
+    const Item = await client.send(
+      new GetItemCommand({
+        TableName: process.env.TABLE_NAME,
+        Key: {
+          Hid: { S: req.query.id }
+        }
+      })
+    );
+    return res.status(200).json(Item);
   }
 
   if (req.method === 'POST') {
@@ -64,16 +66,16 @@ export default async function handler(req, res) {
     return res.status(200).json(Attributes);
   }
 
-  if (req.method === 'DELETE') {
-    await client.send(
-      new DeleteItemCommand({
-        TableName: process.env.TABLE_NAME,
-        Key: {
-          id: { S: req.body.id }
-        }
-      })
-    );
+  // if (req.method === 'DELETE') {
+  //   await client.send(
+  //     new DeleteItemCommand({
+  //       TableName: process.env.TABLE_NAME,
+  //       Key: {
+  //         id: { S: req.body.id }
+  //       }
+  //     })
+  //   );
 
-    return res.status(204).json({});
-  }
+  //   return res.status(204).json({});
+  // }
 }

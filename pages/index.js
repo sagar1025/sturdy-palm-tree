@@ -5,9 +5,9 @@ import Navbar from 'react-bootstrap/Navbar';
 const App = ()  => {
   return (
     <Container>
-        <Navbar bg="dark" variant="dark" className='mb-4'>
+        <Navbar bg="dark" variant="dark" className='mb-2'>
         <Container>
-          <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+          <Navbar.Brand href="#">Navbar</Navbar.Brand>
         </Container>
       </Navbar>
       <HomePage />

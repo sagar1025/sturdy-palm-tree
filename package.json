@@ -8,6 +8,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.145.0",
     "bootstrap": "^5.2.3",
+    "crypto-js": "^4.1.1",
     "leaflet": "^1.9.3",
     "next": "latest",
     "react": "^18.2.0",
